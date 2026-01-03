@@ -1,9 +1,9 @@
 // ==UserScript==
-// @name        TF2 Wallet Counter (Embedded Text)
+// @name        TF2 Wallet Counter (Native Text Match)
 // @namespace   https://github.com/Raytr0
-// @version     1.2
+// @version     1.3
 // @author      Raytr0
-// @description Counts TF2 currency and embeds the result as text in the trade panel.
+// @description Counts TF2 currency and embeds it into the trade panel using native styles.
 // @include     /^https?:\/\/steamcommunity\.com\/tradeoffer.*/
 // @grant       none
 // ==/UserScript==
@@ -23,36 +23,29 @@
     function initUI() {
         const controlsDiv = document.getElementById('controls');
 
-        // If controls exist but we haven't added our display yet
         if (controlsDiv && !document.getElementById('tf2_wallet_display')) {
 
-            // Create the wrapper div
-            // 'control_fields' gives it the correct Steam margins/padding
+            // 1. Create Wrapper
+            // "control_fields" provides the standard margins used by other blocks
             const wrapper = document.createElement('div');
             wrapper.id = 'tf2_wallet_display';
             wrapper.className = 'control_fields';
+            wrapper.style.width = '100%';
             wrapper.style.marginBottom = '10px';
-            wrapper.style.width = '100%'; // Dynamically fit horizontal area
-            wrapper.style.boxSizing = 'border-box'; // Ensure padding doesn't break width
 
-            // Create the Content Div
-            // We use 'selectableNone' to match the other labels behavior
+            // 2. Create Content Div
+            // "selectableNone" makes it match the font/size of "Add multiple items:" exactly
             const content = document.createElement('div');
             content.className = 'selectableNone';
 
-            // Styling to match the existing background (transparent) and font
+            // We remove specific font-size/family here so it inherits from the class
+            content.style.color = '#8F98A0'; // Matches the label text color
             content.style.width = '100%';
-            content.style.fontSize = '12px';
-            content.style.fontFamily = 'Arial, Helvetica, sans-serif';
-            content.style.color = '#8F98A0'; // Standard Steam label color
-            content.style.lineHeight = '16px';
-            content.style.textAlign = 'left';
             content.innerHTML = 'Scanning Inventory...';
 
-            // Assemble
             wrapper.appendChild(content);
 
-            // Insert into the controls div after the horizontal rule
+            // 3. Insert after the separator line
             const tradeRule = controlsDiv.querySelector('.trade_rule');
             if (tradeRule) {
                 tradeRule.after(wrapper);
@@ -74,7 +67,7 @@
         const inventory = document.querySelector("div.inventory_ctn:not([style*='display: none'])");
 
         if (!inventory) {
-            displayElement.innerHTML = 'Inventory not visible';
+            displayElement.innerText = 'Inventory not visible';
             return;
         }
 
@@ -96,20 +89,18 @@
             }
         });
 
-        // Calculate Total Ref Value
         const totalMetal = refCount + (recCount / 3) + (scrapCount / 9);
 
-        // Update HTML
-        // Using a flex-like layout with spans to fit horizontally
+        // We use simple span tags so they inherit the parent font size
         displayElement.innerHTML = `
-            <div style="border-bottom: 1px solid #3A3A3A; padding-bottom: 4px; margin-bottom: 4px;">
-                <span style="color: #FFD700; font-weight: bold;">${keyCount} Keys</span>
-                <span style="color: #666; margin: 0 5px;">|</span>
+            <div style="border-bottom: 1px solid #3A3A3A; padding-bottom: 5px; margin-bottom: 5px;">
+                <span style="color: #FFD700; font-weight: bold;">${keyCount} Keys</span> 
+                <span style="color: #555; margin: 0 4px;">|</span>
                 <span style="color: #eee;">${refCount} Ref</span>
-                <span style="color: #888;">, ${recCount} Rec, ${scrapCount} Scrap</span>
+                <span style="color: #777;">, ${recCount} Rec, ${scrapCount} Scrap</span>
             </div>
             <div>
-                Total Metal Value: <span style="color: #fff; font-weight: bold;">${totalMetal.toFixed(2)} ref</span>
+                Total Metal: <span style="color: #fff;">${totalMetal.toFixed(2)} ref</span>
             </div>
         `;
     }
